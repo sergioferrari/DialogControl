@@ -1,4 +1,4 @@
-# WinLambSample - Win32 Desktop App in C++
+# DialogControl - Win32 Desktop App in C++
 
 This is a simple example of a Win32 desktop application written in C++ using the [WinLamb](https://github.com/rodrigocfd/winlamb) library.
 
