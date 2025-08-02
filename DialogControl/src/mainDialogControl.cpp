@@ -4,6 +4,7 @@
 #include <winlamb/menu.h>
 #include <winlamb/button.h>
 #include "../res/resource.h"
+#include <memory>
 
 class DialogA : public wl::dialog_control
 {
@@ -64,7 +65,7 @@ public:
 	MainWindow()
 	{
 		setup.wndClassEx.lpszClassName = L"SampleMainWindow";
-		setup.title = L"DialogControl Sample";
+		setup.title = L"WinLamb Sample";
 		setup.position = { 400, 150 };
 		setup.size = { 600, 400 };
 		setup.style |= WS_MINIMIZEBOX;
@@ -97,8 +98,7 @@ public:
 private: 	
 	wl::statusbar m_statusbar;
 	wl::menu m_menu;
-	DialogA dialogA;
-	DialogB dialogB;
+	std::unique_ptr<wl::dialog_control> m_client_dlg = nullptr;
 
 };
 
@@ -116,24 +116,41 @@ void MainWindow::initWinMessages()
 		m_statusbar.adjust(p); // Adjust the status bar on window resize
 		return 0;
 	});
-	on_message(WM_COMMAND, [this](wl::params p) -> LRESULT {
-		if (LOWORD(p.wParam) == ID_FILE_EXIT) {
-			PostQuitMessage(0); // Exit the application
-			return 0;
-		}
-		return DefWindowProcW(this->hwnd(), p.message, p.wParam, p.lParam);
-		});
+
 }
 
 void MainWindow::initAppCommands()
 {
 	on_command(ID_FILE_VIEWDIALOGA, [this](wl::params p) -> LRESULT {
-		dialogA.create(this->hwnd(), IDD_DIALOG_A, {0,0}, {600,400});
+		if (m_client_dlg && ::IsWindow(m_client_dlg->hwnd())) {
+			::DestroyWindow(m_client_dlg->hwnd());
+			m_client_dlg.reset();
+		}
+		else
+		{
+			m_client_dlg = std::make_unique<DialogA>();
+			m_client_dlg->create(this->hwnd(), IDD_DIALOG_A, { 0,0 }, { 600,400 });
+		}
+	
 		return 0;
 	});
 
 	on_command(ID_FILE_VIEWDIALOGB, [this](wl::params p) -> LRESULT {
-		dialogB.create(this->hwnd(), IDD_DIALOG_B, { 0,0 }, { 600,400 });
+			if (m_client_dlg && ::IsWindow(m_client_dlg->hwnd())) {
+				::DestroyWindow(m_client_dlg->hwnd());
+				m_client_dlg.reset();
+				m_client_dlg = nullptr;
+			}
+			else
+			{
+				m_client_dlg = std::make_unique<DialogA>();
+				m_client_dlg->create(this->hwnd(), IDD_DIALOG_A, { 0,0 }, { 600,400 });
+			}
+		return 0;
+		});
+
+	on_command(ID_FILE_EXIT, [this](wl::params p) -> LRESULT {
+		PostQuitMessage(0); // Post a close message to the main window
 		return 0;
 		});
 }
