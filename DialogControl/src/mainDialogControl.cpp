@@ -77,24 +77,15 @@ public:
 		setup.wndClassEx.lpszMenuName = MAKEINTRESOURCEW(IDR_MAINMENU);
 		m_menu = GetMenu(this->hwnd());
 
+		initStatusBar();
 		initWinMessages();
 		initAppCommands();
 	}
 
+	void initStatusBar();
 	void initWinMessages();
 	void initAppCommands();
-
-	void initStatusBar()
-	{
-		m_statusbar.create(this->hwnd());
-		m_statusbar.add_fixed_part(100); // fixed width part
-		m_statusbar.add_resizable_part(1); // resizable part with weight 1
-		m_statusbar.add_fixed_part(100); // another fixed width part
-		m_statusbar.style.size_grip(true); // enable size grip
-		m_statusbar.set_text(L"Ready", 0); // set text for the first part
-	}
-
-
+	
 private: 	
 	wl::statusbar m_statusbar;
 	wl::menu m_menu;
@@ -153,6 +144,15 @@ void MainWindow::initAppCommands()
 		PostQuitMessage(0); // Post a close message to the main window
 		return 0;
 		});
+}
+
+void MainWindow::initStatusBar()
+{
+	m_statusbar.create(this->hwnd());
+	m_statusbar.add_fixed_part(100); 
+	m_statusbar.add_resizable_part(1); 
+	m_statusbar.add_fixed_part(100); 
+	m_statusbar.set_text(L"Ready", 0); 
 }
 
 
